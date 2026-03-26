@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::orca;
+use crate::SwapExecuted;
 
 #[derive(Accounts)]
 pub struct Swap<'info> {
@@ -61,7 +62,15 @@ pub fn handler(
         sqrt_price_limit,
         amount_specified_is_input,
         a_to_b,
-    )
+    )?;
+
+    emit!(SwapExecuted {
+        user: ctx.accounts.token_authority.key(),
+        amount_in: amount,
+        a_to_b,
+    });
+
+    Ok(())
 }
 
   

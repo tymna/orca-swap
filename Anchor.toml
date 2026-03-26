@@ -15,7 +15,7 @@ whirlpool_swap = "GRD4AsZgQoeb5MjPmdm5HJUFYuvi54sJj19rmTkFgHLe"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 # cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
@@ -24,7 +24,7 @@ address = "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 program = "whirlpool.so"
 
 [test.validator]
-url = "https://api.mainnet-beta.solana.com"
+# url = "devnet"
 bind_address = "127.0.0.1"
 
 # SOL/USDC Whirlpool pool

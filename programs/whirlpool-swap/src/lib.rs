@@ -10,7 +10,7 @@ use instructions::*;
 #[program]
 pub mod whirlpool_swap {
     use super::*;
-
+    
     pub fn swap(
         ctx: Context<Swap>,
         amount: u64,
@@ -22,4 +22,15 @@ pub mod whirlpool_swap {
         instructions::swap::handler(ctx, amount, other_amount_threshold, sqrt_price_limit, amount_specified_is_input, a_to_b) 
     }
 }
+
+#[event]
+pub struct SwapExecuted {
+    pub user: Pubkey,
+    pub amount_in: u64,
+    pub a_to_b: bool,
+}
+
+
+
+
 

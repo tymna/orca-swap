@@ -54,7 +54,8 @@ describe("whirlpool-swap (localnet)", () => {
 
     // read pool data (cloned from mainnet)
     const poolAccountInfo = await provider.connection.getAccountInfo(SOL_USDC_POOL);
-    if (!poolAccountInfo) throw new Error("Pool account not found — check [[test.validator.clone]] in Anchor.toml");
+    if (!poolAccountInfo) throw new Error("Pool account not found — if using surfpool, ensure it forks mainnet: surfpool start --rpc-url https://api.mainnet-beta.solana.com");
+    if (poolAccountInfo.data.length < 245) throw new Error(`Pool data too small (${poolAccountInfo.data.length} bytes) — account may not be fully loaded from mainnet`);
 
     const data = poolAccountInfo.data;
     tokenVaultA = new PublicKey(data.subarray(133, 165));
@@ -145,6 +146,22 @@ describe("whirlpool-swap (localnet)", () => {
     assert.isTrue(usdcAfter > usdcBefore, "USDC balance should increase after a_to_b swap");
     console.log("USDC received:", Number(usdcAfter - usdcBefore) / 1e6);
     console.log("Tx:", tx);
+
+    // parse event from transaction logs
+    await provider.connection.confirmTransaction(tx, "confirmed");
+    const txDetails = await provider.connection.getTransaction(tx, { commitment: "confirmed" });
+    const events = [];
+    const parser = new anchor.EventParser(program.programId, program.coder);
+    for (const event of parser.parseLogs(txDetails.meta.logMessages)) {
+      events.push(event);
+    }
+
+    assert.equal(events.length, 1, "should emit exactly one event");
+    assert.equal(events[0].name, "swapExecuted");
+    assert.equal(events[0].data.user.toBase58(), wallet.publicKey.toBase58());
+    assert.equal(events[0].data.amountIn.toNumber(), 1_000_000);
+    assert.equal(events[0].data.aToB, true);
+    console.log("Event:", events[0].data);
   });
 
   it("swaps USDC for SOL", async () => {
@@ -183,6 +200,22 @@ describe("whirlpool-swap (localnet)", () => {
     assert.isTrue(wsolAfter > wsolBefore, "WSOL balance should increase after b_to_a swap");
     console.log("WSOL received:", Number(wsolAfter - wsolBefore) / 1e9);
     console.log("Tx:", tx);
+
+    // parse event from transaction logs
+    await provider.connection.confirmTransaction(tx, "confirmed");
+    const txDetails = await provider.connection.getTransaction(tx, { commitment: "confirmed" });
+    const events = [];
+    const parser = new anchor.EventParser(program.programId, program.coder);
+    for (const event of parser.parseLogs(txDetails.meta.logMessages)) {
+      events.push(event);
+    }
+
+    assert.equal(events.length, 1, "should emit exactly one event");
+    assert.equal(events[0].name, "swapExecuted");
+    assert.equal(events[0].data.user.toBase58(), wallet.publicKey.toBase58());
+    assert.equal(events[0].data.amountIn.toNumber(), 10_000);
+    assert.equal(events[0].data.aToB, false);
+    console.log("Event:", events[0].data);
   });
 
   // --- Revert cases ---

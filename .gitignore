@@ -8,3 +8,6 @@ test-ledger
 whirlpool.so
 .claude
 CLAUDE.md
+.surfpool
+runbooks/
+txtx.yml
