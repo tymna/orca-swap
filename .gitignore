@@ -6,8 +6,6 @@ node_modules/
 test-ledger
 .yarn
 whirlpool.so
-.claude
-CLAUDE.md
 .surfpool
 runbooks/
 txtx.yml
